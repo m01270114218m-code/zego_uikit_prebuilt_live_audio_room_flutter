@@ -53,10 +53,23 @@ jobs:
             adb shell monkey -p com.mohamedfaroun.voicerooms 1
             sleep 12
             adb logcat -d > /tmp/voice_rooms_logcat.txt
-            if grep -E "FATAL EXCEPTION|AndroidRuntime|Process: com.mohamedfaroun.voicerooms" /tmp/voice_rooms_logcat.txt; then
+            echo "=== APP STATE ==="
+            adb shell pidof com.mohamedfaroun.voicerooms || true
+            adb shell dumpsys activity activities | grep -E "mResumedActivity|mFocusedApp" || true
+            echo "=== CRASH/ERROR LOG ==="
+            grep -E "FATAL EXCEPTION|AndroidRuntime|Process: com.mohamedfaroun.voicerooms|flutter" /tmp/voice_rooms_logcat.txt || true
+            if grep -E "FATAL EXCEPTION|Process: com.mohamedfaroun.voicerooms" /tmp/voice_rooms_logcat.txt; then
               cat /tmp/voice_rooms_logcat.txt
               exit 1
             fi
+
+      - name: Upload emulator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-log
+          path: /tmp/voice_rooms_logcat.txt
+          if-no-files-found: warn
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
