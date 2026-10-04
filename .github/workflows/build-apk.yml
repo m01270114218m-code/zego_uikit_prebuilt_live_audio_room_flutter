@@ -39,6 +39,25 @@ jobs:
       - name: Build APK
         run: flutter build apk --debug
 
+      - name: Smoke test APK on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          script: |
+            adb install -r build/app/outputs/flutter-apk/app-debug.apk
+            adb logcat -c
+            adb shell am force-stop com.mohamedfaroun.voicerooms
+            adb shell monkey -p com.mohamedfaroun.voicerooms 1
+            sleep 12
+            adb logcat -d > /tmp/voice_rooms_logcat.txt
+            if grep -E "FATAL EXCEPTION|AndroidRuntime|Process: com.mohamedfaroun.voicerooms" /tmp/voice_rooms_logcat.txt; then
+              cat /tmp/voice_rooms_logcat.txt
+              exit 1
+            fi
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
