@@ -1,17 +1,6 @@
 group 'com.zegocloud.uikit.prebuilt_live_audio_room'
 version '1.0'
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.0'
-    }
-}
-
 rootProject.allprojects {
     repositories {
         google()
@@ -27,7 +16,7 @@ android {
         namespace 'com.zegocloud.uikit.prebuilt_live_audio_room'
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 35
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
