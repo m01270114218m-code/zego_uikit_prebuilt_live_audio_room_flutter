@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'example/**'
-      - 'lib/**'
-      - '.github/workflows/build-apk.yml'
+      - "example/**"
+      - "lib/**"
+      - "android/**"
+      - ".github/workflows/build-apk.yml"
 
 jobs:
   build-apk:
@@ -14,20 +15,28 @@ jobs:
     defaults:
       run:
         working-directory: example
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: "3.29.3"
           cache: true
 
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Analyze
+      - name: Flutter analyze
         run: flutter analyze
 
       - name: Build APK
@@ -38,3 +47,4 @@ jobs:
         with:
           name: voice-rooms-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
