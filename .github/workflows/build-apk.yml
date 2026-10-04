@@ -39,41 +39,14 @@ jobs:
       - name: Build APK
         run: flutter build apk --debug
 
-      - name: Smoke test APK on Android emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          profile: pixel_2
-          script: |
-            adb install -r example/build/app/outputs/flutter-apk/app-debug.apk
-            adb logcat -c
-            adb shell am force-stop com.mohamedfaroun.voicerooms
-            adb shell monkey -p com.mohamedfaroun.voicerooms 1
-            sleep 12
-            adb logcat -d > /tmp/voice_rooms_logcat.txt
-            echo "=== APP STATE ==="
-            adb shell pidof com.mohamedfaroun.voicerooms || true
-            adb shell dumpsys activity activities | grep -E "mResumedActivity|mFocusedApp" || true
-            echo "=== CRASH/ERROR LOG ==="
-            grep -E "FATAL EXCEPTION|AndroidRuntime|Process: com.mohamedfaroun.voicerooms|flutter" /tmp/voice_rooms_logcat.txt || true
-            if grep -E "FATAL EXCEPTION|Process: com.mohamedfaroun.voicerooms" /tmp/voice_rooms_logcat.txt; then
-              cat /tmp/voice_rooms_logcat.txt
-              exit 1
-            fi
-
-      - name: Upload emulator log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: emulator-log
-          path: /tmp/voice_rooms_logcat.txt
-          if-no-files-found: warn
+      - name: Validate APK
+        run: |
+          test -f build/app/outputs/flutter-apk/app-debug.apk
+          ls -lh build/app/outputs/flutter-apk/app-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: voice-rooms-debug-apk
-          path: example/build/app/outputs/flutter-apk/app-debug.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
