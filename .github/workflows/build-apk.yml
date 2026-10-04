@@ -47,7 +47,7 @@ jobs:
           arch: x86_64
           profile: pixel_2
           script: |
-            adb install -r build/app/outputs/flutter-apk/app-debug.apk
+            adb install -r example/build/app/outputs/flutter-apk/app-debug.apk
             adb logcat -c
             adb shell am force-stop com.mohamedfaroun.voicerooms
             adb shell monkey -p com.mohamedfaroun.voicerooms 1
